@@ -3,28 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arch Nemesis | WezTerm Architecture</title>
+<meta name="description" content="Arch Nemesis — exploring WezTerm software architecture at Queen's University.">
+<title>Arch Nemesis | WezTerm</title>
 
 <style>
 :root {
   color-scheme: dark;
-  --text: #f3f6fb;
-  --muted: #a1aec3;
-  --cyan: #83ede4;
-  --line: rgba(255,255,255,.13);
+  --bg: #060810;
+  --text: #f0f5ff;
+  --muted: #a3aec5;
+  --cyan: #69fff0;
+  --violet: #ab8cff;
+  --border: #ffffff18;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: #080b12;
+  background: var(--bg);
   color: var(--text);
   font-family: "Segoe UI", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-button, a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; color: inherit; cursor: pointer; }
 a { color: var(--cyan); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -34,7 +36,7 @@ button:focus-visible, a:focus-visible {
   outline-offset: 5px;
 }
 
-#network {
+#circuits {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -43,17 +45,18 @@ button:focus-visible, a:focus-visible {
   z-index: 0;
 }
 
-.ambient {
+.atmosphere {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 15% 20%, #174b5430, transparent 55%),
-    radial-gradient(ellipse at 85% 80%, #51407830, transparent 55%);
+    radial-gradient(ellipse at 50% 25%, #193d4938, transparent 55%),
+    radial-gradient(ellipse at 90% 85%, #50327625, transparent 50%),
+    linear-gradient(180deg, #06081015, #060810a0);
 }
 
-header, main {
+header, main, footer {
   position: relative;
   z-index: 1;
 }
@@ -63,88 +66,143 @@ header {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  padding: 28px 6vw;
+  max-width: 1300px;
+  margin: auto;
+  padding: 28px 5vw;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
-  font-size: 13px;
+  gap: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
-.brand-mark {
-  width: 23px;
-  height: 23px;
-  border: 1px solid var(--cyan);
-  border-radius: 7px;
-  transform: rotate(-12deg);
-  box-shadow: 0 0 15px #83ede420;
+.brand-icon {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #69fff060;
+  border-radius: 8px;
+  background: #69fff008;
+  color: var(--cyan);
 }
 
-.course {
+.header-info {
   font-size: 11px;
   color: var(--muted);
 }
 
 main {
-  min-height: calc(100svh - 80px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 45px 22px 35px;
+  max-width: 1150px;
+  margin: auto;
+  padding: 35px 24px 45px;
   text-align: center;
 }
 
-.emblem {
+.core-scene {
   position: relative;
+  width: 240px;
+  height: 220px;
+  margin: 0 auto 24px;
   display: grid;
   place-items: center;
-  width: 85px;
-  height: 85px;
-  margin-bottom: 38px;
 }
 
-.emblem::before, .emblem::after {
+.core-scene::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border: 1px solid #83ede445;
+  inset: 20px;
+  background: radial-gradient(circle, #69fff024, transparent 65%);
+  filter: blur(20px);
+}
+
+.orbit {
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border: 1px solid #69fff024;
+  border-radius: 50%;
+  animation: spin 22s linear infinite;
+}
+
+.orbit::before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  top: 15px;
+  left: 30px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--cyan);
+}
+
+.orbit.second {
+  width: 205px;
+  height: 205px;
+  border: 1px dashed #ab8cff35;
+  animation-duration: 35s;
+  animation-direction: reverse;
+}
+
+.orbit.second::before {
+  background: var(--violet);
+  box-shadow: 0 0 15px var(--violet);
+}
+
+.chip {
+  position: relative;
+  width: 87px;
+  height: 87px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #69fff070;
   border-radius: 24px;
+  background: linear-gradient(140deg, #173139, #0d1220);
+  box-shadow:
+    0 0 40px #69fff015,
+    inset 0 0 25px #69fff009;
+  animation: float 6s ease-in-out infinite;
 }
 
-.emblem::before { animation: rotate 24s linear infinite; }
-
-.emblem::after {
-  inset: 10px;
-  border-color: #aa93ff50;
-  animation: rotate 32s linear infinite reverse;
-}
-
-.emblem svg {
-  width: 28px;
-  height: 28px;
+.chip svg {
+  width: 34px;
+  height: 34px;
   color: var(--cyan);
-  filter: drop-shadow(0 0 8px #83ede460);
+  filter: drop-shadow(0 0 7px #69fff070);
 }
 
-.eyebrow {
+.chip::before, .chip::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 1px solid #69fff025;
+  border-radius: 30px;
+}
+
+.chip::after {
+  inset: -17px;
+  border-color: #69fff010;
+  border-radius: 36px;
+}
+
+.badge {
   display: inline-flex;
   align-items: center;
   gap: 9px;
   padding: 7px 13px;
-  border: 1px solid var(--line);
+  border: 1px solid #ffffff20;
   border-radius: 30px;
-  background: #0c1420a0;
-  color: var(--muted);
+  background: #0e1624b0;
+  color: #b8c5d9;
   font-size: 10px;
-  letter-spacing: .6px;
-  margin-bottom: 24px;
+  letter-spacing: .8px;
 }
 
-.eyebrow i {
+.badge i {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -153,95 +211,151 @@ main {
 }
 
 h1 {
-  margin: 0;
-  font-size: clamp(48px, 9vw, 105px);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -.065em;
+  margin: 22px 0 0;
+  font-size: clamp(49px, 9vw, 112px);
+  font-weight: 650;
+  letter-spacing: -.07em;
+  line-height: 1.08;
 }
 
 h1 span {
   color: var(--cyan);
-  text-shadow: 0 0 35px #83ede425;
-  animation: glow 6s ease-in-out infinite;
+  text-shadow: 0 0 45px #69fff025;
 }
 
 .subtitle {
-  margin: 24px 0 0;
-  font-size: clamp(15px, 2vw, 20px);
-  color: #c8d1df;
-  letter-spacing: -.3px;
+  margin: 23px 0 0;
+  color: #d5dfef;
+  font-size: clamp(16px, 2vw, 21px);
+  letter-spacing: -.4px;
 }
 
 .description {
-  max-width: 450px;
-  margin: 13px 0 38px;
-  color: var(--muted);
+  max-width: 470px;
+  margin: 12px auto 0;
   font-size: 13px;
-  line-height: 1.8;
+  color: var(--muted);
+  line-height: 1.9;
 }
 
-.dock {
-  --mouse-x: 50%;
-  --mouse-y: 50%;
+.signal {
+  width: min(430px, 85%);
+  height: 1px;
+  margin: 36px auto;
+  background: linear-gradient(90deg, transparent, #69fff050, transparent);
   position: relative;
-  isolation: isolate;
-  display: flex;
-  gap: 5px;
-  padding: 8px;
-  max-width: 100%;
-  border: 1px solid #ffffff20;
-  border-radius: 19px;
-  background: #101724b8;
-  backdrop-filter: blur(18px);
-  box-shadow: 0 15px 60px #0005, inset 0 1px 0 #ffffff08;
+  overflow: hidden;
 }
 
-.dock::before {
+.signal::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: signal 3s linear infinite;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  text-align: left;
+}
+
+.card {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 165px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #0d1420d9;
+  backdrop-filter: blur(12px);
+  text-align: left;
+  transition:
+    transform .25s,
+    border-color .25s,
+    box-shadow .25s;
+}
+
+.card::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
   z-index: -1;
   opacity: 0;
   background: radial-gradient(
-    140px circle at var(--mouse-x) var(--mouse-y),
-    #83ede425, transparent 75%
+    160px circle at var(--mx) var(--my),
+    #69fff021, transparent 75%
   );
   transition: opacity .3s;
 }
 
-.dock:hover::before { opacity: 1; }
+.card:hover {
+  transform: translateY(-6px);
+  border-color: #69fff050;
+  box-shadow: 0 14px 45px #0005, 0 0 25px #69fff008;
+}
 
-.dock button {
+.card:hover::before { opacity: 1; }
+
+.card-top {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 9px;
-  padding: 15px 21px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-  color: #c4ccdb;
-  font-size: 12px;
+  justify-content: space-between;
+  margin-bottom: 27px;
+}
+
+.card-icon {
+  width: 37px;
+  height: 37px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: #69fff00a;
+  border: 1px solid #69fff020;
+  color: var(--cyan);
+}
+
+.card-number {
+  color: #79879d;
+  font-size: 10px;
+}
+
+.card-title {
+  display: block;
+  font-size: 15px;
   font-weight: 500;
-  transition: transform .25s, background .25s, color .25s;
 }
 
-.dock button:hover {
-  transform: translateY(-3px);
-  background: #ffffff08;
-  border-color: #83ede425;
-  color: #fff;
-  box-shadow: 0 5px 20px #83ede408;
+.card-detail {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
-.dock button:hover svg { stroke: var(--cyan); }
+.card-arrow {
+  position: absolute;
+  right: 22px;
+  bottom: 25px;
+  color: #91a0b8;
+  transition: transform .25s, color .25s;
+}
+
+.card:hover .card-arrow {
+  transform: translate(2px, -2px);
+  color: var(--cyan);
+}
 
 .icon {
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -250,41 +364,38 @@ h1 span {
 }
 
 footer {
-  margin-top: 48px;
-  color: #8492a9;
+  padding: 15px 22px 32px;
+  text-align: center;
+  color: #8390a5;
   font-size: 10px;
-  line-height: 1.8;
 }
 
 .motion {
-  display: block;
-  margin: 12px auto 0;
-  padding: 5px;
-  border: 0;
-  background: transparent;
-  color: #8996ab;
+  margin-left: 14px;
+  padding: 6px 10px;
+  background: #ffffff03;
+  border: 1px solid #ffffff13;
+  border-radius: 20px;
+  color: #a3aec5;
   font-size: 10px;
 }
-
-.motion:hover { color: var(--cyan); }
 
 dialog {
   width: min(650px, calc(100% - 28px));
   max-height: 85svh;
   overflow-y: auto;
-  padding: 48px 36px 35px;
-  border: 1px solid #83ede430;
-  border-radius: 23px;
-  background: #111620f5;
+  padding: 48px 34px 32px;
+  border: 1px solid #69fff030;
+  border-radius: 22px;
+  background: #101724f5;
   color: var(--text);
   box-shadow: 0 30px 120px #0008;
-  text-align: left;
 }
 
 dialog[open] { animation: reveal .25s ease-out; }
 
 dialog::backdrop {
-  background: #03060ab8;
+  background: #03060ac9;
   backdrop-filter: blur(12px);
 }
 
@@ -297,29 +408,29 @@ dialog::backdrop {
   border: 0;
   border-radius: 50%;
   background: #ffffff06;
+  font-size: 24px;
   color: var(--muted);
-  font-size: 23px;
 }
 
-.close:hover { color: #fff; background: #ffffff12; }
+.close:hover { background: #ffffff12; color: #fff; }
 
 .label {
   color: var(--cyan);
   font-size: 10px;
   letter-spacing: 1px;
-  margin: 0 0 14px;
+  margin: 0 0 15px;
 }
 
 h2 {
   margin: 0 0 20px;
-  font-size: 32px;
+  font-size: 31px;
   font-weight: 500;
   letter-spacing: -1px;
 }
 
 .copy {
-  color: var(--muted);
   font-size: 14px;
+  color: var(--muted);
   line-height: 1.9;
 }
 
@@ -327,13 +438,13 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin: 22px 0;
+  margin: 23px 0;
 }
 
 .tags span {
-  padding: 6px 11px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   color: #c5d7da;
   font-size: 10px;
 }
@@ -343,7 +454,7 @@ h2 {
 .team li {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   padding: 16px 0;
   border-bottom: 1px solid #ffffff0c;
 }
@@ -354,72 +465,70 @@ h2 {
   width: 37px;
   height: 37px;
   flex-shrink: 0;
-  border-radius: 12px;
-  background: linear-gradient(145deg, #83ede414, #aa93ff14);
-  border: 1px solid #ffffff10;
+  border-radius: 11px;
   display: grid;
   place-items: center;
-  color: #c3e3e5;
+  background: linear-gradient(140deg, #69fff015, #ab8cff15);
+  color: #c5e7e3;
   font-size: 11px;
 }
 
 .member { flex: 1; min-width: 0; }
 .name { display: block; font-size: 14px; }
-
-.role {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  color: var(--muted);
-}
-
+.role { display: block; margin-top: 4px; font-size: 10px; color: var(--muted); }
 .email { font-size: 11px; white-space: nowrap; }
 
 .resources { display: grid; gap: 10px; margin-top: 24px; }
 
 .resource {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 15px;
   padding: 20px;
-  background: #ffffff03;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: 12px;
+  background: #ffffff03;
 }
 
-.resource h3 { font-size: 14px; font-weight: 500; margin: 0 0 5px; }
+.resource h3 { margin: 0 0 5px; font-size: 14px; font-weight: 500; }
 .resource small { font-size: 11px; color: var(--muted); }
 .status, .file-link { font-size: 10px; white-space: nowrap; }
-.status { color: #8996ab; }
+.status { color: var(--muted); }
 
 body.paused *, body.paused *::before, body.paused *::after {
   animation-play-state: paused !important;
 }
 
-@keyframes rotate { to { transform: rotate(360deg); } }
-
-@keyframes glow {
-  50% { text-shadow: 0 0 45px #83ede440; }
-}
-
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float { 50% { transform: translateY(-7px); } }
+@keyframes signal { from { left: -100px; } to { left: 100%; } }
 @keyframes reveal {
-  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@media (max-width: 600px) {
-  header { padding: 22px; }
-  .brand { font-size: 11px; }
-  .course { font-size: 9px; text-align: right; }
-  main { padding-top: 35px; }
-  h1 { font-size: clamp(43px, 11vw, 66px); }
-  .dock { display: grid; grid-template-columns: 1fr 1fr; width: 340px; }
-  .dock button { padding: 15px 13px; }
-  .description { font-size: 12px; }
+@media (max-width: 850px) {
+  .cards { grid-template-columns: repeat(2, 1fr); max-width: 650px; margin: auto; }
+}
+
+@media (max-width: 500px) {
+  header { padding: 23px 22px; }
+  .brand { font-size: 12px; }
+  .header-info { font-size: 9px; text-align: right; }
+  main { padding-top: 18px; }
+  .core-scene { width: 210px; height: 195px; }
+  .orbit { width: 155px; height: 155px; }
+  .orbit.second { width: 185px; height: 185px; }
+  h1 { font-size: clamp(43px, 11vw, 60px); }
+  .card { padding: 19px; min-height: 155px; }
+  .card-title { font-size: 13px; }
+  .card-detail { font-size: 10px; padding-right: 10px; }
+  .card-arrow { right: 15px; bottom: 19px; }
   dialog { padding: 48px 22px 25px; }
   .resource { align-items: flex-start; flex-direction: column; }
   .name { font-size: 12px; }
+  .motion { display: block; margin: 13px auto 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -432,73 +541,105 @@ body.paused *, body.paused *::before, body.paused *::after {
 </head>
 
 <body>
-<canvas id="network" aria-hidden="true"></canvas>
-<div class="ambient" aria-hidden="true"></div>
+<canvas id="circuits" aria-hidden="true"></canvas>
+<div class="atmosphere" aria-hidden="true"></div>
 
 <header>
   <div class="brand">
-    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-icon" aria-hidden="true">◇</span>
     Arch Nemesis
   </div>
-  <span class="course">Queen's University · CISC 322 / 326</span>
+  <div class="header-info">Queen's University · CISC 322 / 326</div>
 </header>
 
 <main>
-  <div class="emblem" aria-hidden="true">
-    <svg class="icon" viewBox="0 0 24 24">
-      <path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/>
-    </svg>
+  <div class="core-scene" aria-hidden="true">
+    <div class="orbit"></div>
+    <div class="orbit second"></div>
+    <div class="chip">
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/>
+      </svg>
+    </div>
   </div>
 
-  <div class="eyebrow">
-    <i aria-hidden="true"></i>Software Architecture · 2026
+  <div class="badge">
+    <i aria-hidden="true"></i>SOFTWARE ARCHITECTURE · 2026
   </div>
 
   <h1>Arch <span>Nemesis.</span></h1>
-  <p class="subtitle">Exploring WezTerm architecture.</p>
+  <p class="subtitle">Exploring the architecture behind WezTerm.</p>
   <p class="description">
-    Six perspectives. One system. Understanding how software
-    is structured, connected, and built to evolve.
+    Six perspectives. One system. Connecting the concepts,
+    components, and decisions that shape software.
   </p>
 
-  <nav class="dock" aria-label="Project sections">
-    <button data-panel="project">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/>
-      </svg>
-      Project
+  <div class="signal" aria-hidden="true"></div>
+
+  <nav class="cards" aria-label="Project sections">
+    <button class="card" data-panel="project">
+      <span class="card-top">
+        <span class="card-icon">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/>
+          </svg>
+        </span>
+        <span class="card-number">01</span>
+      </span>
+      <span class="card-title">The project</span>
+      <span class="card-detail">Inside WezTerm</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </button>
 
-    <button data-panel="team">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="9" cy="8" r="3"/>
-        <path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2"/>
-      </svg>
-      Team
+    <button class="card" data-panel="team">
+      <span class="card-top">
+        <span class="card-icon">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="9" cy="8" r="3"/>
+            <path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2"/>
+          </svg>
+        </span>
+        <span class="card-number">02</span>
+      </span>
+      <span class="card-title">Our team</span>
+      <span class="card-detail">Six perspectives</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </button>
 
-    <button data-panel="reports">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M14 3H5v18h14V8l-5-5ZM14 3v5h5M8 12h8M8 16h6"/>
-      </svg>
-      Reports
+    <button class="card" data-panel="reports">
+      <span class="card-top">
+        <span class="card-icon">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 3H5v18h14V8l-5-5ZM14 3v5h5M8 12h8M8 16h6"/>
+          </svg>
+        </span>
+        <span class="card-number">03</span>
+      </span>
+      <span class="card-title">Project reports</span>
+      <span class="card-detail">Architecture & analysis</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </button>
 
-    <button data-panel="presentation">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3 4h18v12H3ZM12 16v5M8 21h8M10 7l5 3-5 3Z"/>
-      </svg>
-      Presentation
+    <button class="card" data-panel="presentation">
+      <span class="card-top">
+        <span class="card-icon">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 4h18v12H3ZM12 16v5M8 21h8M10 7l5 3-5 3Z"/>
+          </svg>
+        </span>
+        <span class="card-number">04</span>
+      </span>
+      <span class="card-title">Presentation</span>
+      <span class="card-detail">Slides & speaking notes</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
     </button>
   </nav>
-
-  <footer>
-    Arch Nemesis © 2026 · Kingston, Ontario
-    <button class="motion" id="motion" aria-pressed="false">
-      Pause animations
-    </button>
-  </footer>
 </main>
+
+<footer>
+  Arch Nemesis © 2026 · Kingston, Ontario
+  <button class="motion" id="motion" aria-pressed="false">Pause animations</button>
+</footer>
 
 <dialog id="project" aria-labelledby="project-title">
   <button class="close" aria-label="Close project">×</button>
@@ -558,11 +699,10 @@ const team = [
   { name: "Stephanie Douglas", initials: "SD", role: "Team Member", email: "23pfc1@queensu.ca" }
 ];
 
-// ADD DOCUMENT LINKS HERE.
-// Upload files beside index.html and enter their filenames.
+// ADD FILE LINKS HERE.
+// Upload files beside index.html, then enter their filenames.
 // Example: url: "A1.pdf"
-// Full Google Drive or Slides links also work.
-
+// Full Google Drive or Google Slides links also work.
 const reports = [
   { title: "Assignment 01", description: "Conceptual Architecture", url: "" },
   { title: "Assignment 02", description: "Concrete Architecture", url: "" },
@@ -614,12 +754,11 @@ function renderResources(id, items) {
 
     const text = document.createElement("div");
     const title = document.createElement("h3");
+    const description = document.createElement("small");
+
     title.textContent = item.title;
-
-    const detail = document.createElement("small");
-    detail.textContent = item.description;
-
-    text.append(title, detail);
+    description.textContent = item.description;
+    text.append(title, description);
     row.append(text);
 
     if (item.url) {
@@ -645,7 +784,7 @@ function renderResources(id, items) {
 renderResources("report-list", reports);
 renderResources("presentation-list", presentations);
 
-// POP-UP SECTIONS
+// OPEN / CLOSE PANELS
 document.querySelectorAll("[data-panel]").forEach(button => {
   button.addEventListener("click", () => {
     document.getElementById(button.dataset.panel).showModal();
@@ -656,29 +795,208 @@ document.querySelectorAll("dialog").forEach(panel => {
   panel.querySelector(".close").addEventListener("click", () => panel.close());
 
   panel.addEventListener("click", event => {
-    const box = panel.getBoundingClientRect();
+    const rect = panel.getBoundingClientRect();
     const outside =
-      event.clientX < box.left || event.clientX > box.right ||
-      event.clientY < box.top || event.clientY > box.bottom;
+      event.clientX < rect.left || event.clientX > rect.right ||
+      event.clientY < rect.top || event.clientY > rect.bottom;
 
     if (event.target === panel && outside) panel.close();
   });
 });
 
-// NAVIGATION GLOW
-const dock = document.querySelector(".dock");
-
-dock.addEventListener("pointermove", event => {
-  if (event.pointerType !== "mouse") return;
-  const box = dock.getBoundingClientRect();
-  dock.style.setProperty("--mouse-x", (event.clientX - box.left) + "px");
-  dock.style.setProperty("--mouse-y", (event.clientY - box.top) + "px");
+// MOUSE-RESPONSIVE CARD LIGHTING
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("pointermove", event => {
+    if (event.pointerType !== "mouse") return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (event.clientX - rect.left) + "px");
+    card.style.setProperty("--my", (event.clientY - rect.top) + "px");
+  });
 });
 
-// ANIMATION CONTROLS
-const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+// NEON CIRCUIT BACKGROUND
+const canvas = document.getElementById("circuits");
+const ctx = canvas.getContext("2d");
 const motionButton = document.getElementById("motion");
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
 let paused = reducedMotion.matches;
+let width = 0;
+let height = 0;
+let routes = [];
+let frameId = null;
+let previousTime = 0;
+
+function makeRoute(index, count) {
+  const fromLeft = index % 2 === 0;
+  const startX = fromLeft ? -60 : width + 60;
+  const endX = fromLeft ? width + 60 : -60;
+  const baseY = height * ((index + .5) / count);
+  const direction = fromLeft ? 1 : -1;
+  const bendX = width * (.15 + Math.random() * .65);
+  const bend = (Math.random() > .5 ? 1 : -1) * (35 + Math.random() * 65);
+
+  const points = [
+    { x: startX, y: baseY },
+    { x: bendX - direction * 45, y: baseY },
+    { x: bendX, y: baseY + bend },
+    { x: endX, y: baseY + bend }
+  ];
+
+  let total = 0;
+  const segments = [];
+
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const length = Math.hypot(b.x - a.x, b.y - a.y);
+    segments.push({ a, b, start: total, length });
+    total += length;
+  }
+
+  return {
+    points,
+    segments,
+    length: total,
+    offset: Math.random() * total,
+    speed: 55 + Math.random() * 65,
+    color: index % 3 === 0 ? [171, 140, 255] : [105, 255, 240]
+  };
+}
+
+function pointAt(route, distance) {
+  for (const segment of route.segments) {
+    if (distance <= segment.start + segment.length) {
+      const t = Math.max(0, Math.min(1,
+        (distance - segment.start) / segment.length
+      ));
+
+      return {
+        x: segment.a.x + (segment.b.x - segment.a.x) * t,
+        y: segment.a.y + (segment.b.y - segment.a.y) * t
+      };
+    }
+  }
+
+  return route.points[route.points.length - 1];
+}
+
+function draw(delta) {
+  ctx.clearRect(0, 0, width, height);
+
+  // Faint technical grid.
+  ctx.lineWidth = .5;
+  ctx.strokeStyle = "rgba(130,160,195,.045)";
+  ctx.beginPath();
+
+  for (let x = 0; x < width; x += 65) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+  }
+
+  for (let y = 0; y < height; y += 65) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+  }
+
+  ctx.stroke();
+
+  for (const route of routes) {
+    const [r, g, b] = route.color;
+    route.offset = (route.offset + route.speed * delta) % route.length;
+
+    // Circuit track.
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(${r},${g},${b},.12)`;
+    ctx.beginPath();
+    route.points.forEach((point, i) => {
+      if (i === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+
+    // Small circuit junctions.
+    for (const point of route.points.slice(1, -1)) {
+      ctx.fillStyle = `rgba(${r},${g},${b},.35)`;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Two moving light pulses on each route.
+    for (let pulse = 0; pulse < 2; pulse++) {
+      const head = (route.offset + pulse * route.length / 2) % route.length;
+      const tailLength = 95;
+      const steps = 20;
+
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = `rgb(${r},${g},${b})`;
+      ctx.shadowBlur = 10;
+
+      for (let step = 0; step < steps; step++) {
+        const d1 = head - tailLength + step * tailLength / steps;
+        const d2 = d1 + tailLength / steps;
+        if (d1 < 0 || d2 > route.length) continue;
+
+        const a = pointAt(route, d1);
+        const bPoint = pointAt(route, d2);
+        const opacity = (step + 1) / steps * .7;
+
+        ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(bPoint.x, bPoint.y);
+        ctx.stroke();
+      }
+
+      const tip = pointAt(route, head);
+      ctx.fillStyle = `rgba(${r},${g},${b},.9)`;
+      ctx.beginPath();
+      ctx.arc(tip.x, tip.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+function resize() {
+  width = innerWidth;
+  height = innerHeight;
+  const scale = Math.min(devicePixelRatio || 1, 2);
+
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+  const count = width < 600 ? 7 : 12;
+  routes = Array.from({ length: count }, (_, i) => makeRoute(i, count));
+  draw(0);
+}
+
+function animate(now) {
+  frameId = null;
+  if (paused || document.hidden) return;
+
+  const elapsed = now - previousTime;
+
+  // Roughly 30 frames per second.
+  if (elapsed >= 33) {
+    draw(Math.min(elapsed / 1000, .08));
+    previousTime = now;
+  }
+
+  frameId = requestAnimationFrame(animate);
+}
+
+function syncAnimation() {
+  if (paused || document.hidden) {
+    if (frameId !== null) cancelAnimationFrame(frameId);
+    frameId = null;
+  } else if (frameId === null) {
+    previousTime = performance.now();
+    frameId = requestAnimationFrame(animate);
+  }
+}
 
 function updateMotion() {
   document.body.classList.toggle("paused", paused);
@@ -687,6 +1005,7 @@ function updateMotion() {
     : paused ? "Resume animations" : "Pause animations";
   motionButton.disabled = reducedMotion.matches;
   motionButton.setAttribute("aria-pressed", String(paused));
+  syncAnimation();
 }
 
 motionButton.addEventListener("click", () => {
@@ -699,135 +1018,11 @@ reducedMotion.addEventListener("change", event => {
   updateMotion();
 });
 
-updateMotion();
-
-// MOVING NEON PARTICLES AND CONNECTING LINES
-const canvas = document.getElementById("network");
-const context = canvas.getContext("2d");
-let width = 0;
-let height = 0;
-let particles = [];
-let previousTime = 0;
-let animationId = null;
-const pointer = { x: -1000, y: -1000 };
-
-function resize() {
-  width = innerWidth;
-  height = innerHeight;
-  const scale = Math.min(devicePixelRatio || 1, 2);
-
-  canvas.width = Math.round(width * scale);
-  canvas.height = Math.round(height * scale);
-  context.setTransform(scale, 0, 0, scale, 0, 0);
-
-  const count = Math.min(80, Math.max(28, Math.floor(width * height / 17000)));
-
-  particles = Array.from({ length: count }, () => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    vx: (Math.random() - .5) * .4,
-    vy: (Math.random() - .5) * .4,
-    size: Math.random() * 1.4 + .8
-  }));
-
-  draw(0);
-}
-
-function draw(delta) {
-  context.clearRect(0, 0, width, height);
-
-  for (const p of particles) {
-    p.x += p.vx * delta;
-    p.y += p.vy * delta;
-
-    if (p.x < 0) p.x = width;
-    if (p.x > width) p.x = 0;
-    if (p.y < 0) p.y = height;
-    if (p.y > height) p.y = 0;
-  }
-
-  for (let i = 0; i < particles.length; i++) {
-    const a = particles[i];
-
-    for (let j = i + 1; j < particles.length; j++) {
-      const b = particles[j];
-      const distance = Math.hypot(a.x - b.x, a.y - b.y);
-
-      if (distance < 155) {
-        context.strokeStyle =
-          `rgba(131,237,228,${(1 - distance / 155) * .21})`;
-        context.lineWidth = .7;
-        context.beginPath();
-        context.moveTo(a.x, a.y);
-        context.lineTo(b.x, b.y);
-        context.stroke();
-      }
-    }
-
-    const mouseDistance = Math.hypot(a.x - pointer.x, a.y - pointer.y);
-
-    if (mouseDistance < 180) {
-      context.strokeStyle =
-        `rgba(174,151,255,${(1 - mouseDistance / 180) * .4})`;
-      context.beginPath();
-      context.moveTo(a.x, a.y);
-      context.lineTo(pointer.x, pointer.y);
-      context.stroke();
-    }
-
-    context.shadowBlur = 8;
-    context.shadowColor = "#83ede4";
-    context.fillStyle = "rgba(131,237,228,.75)";
-    context.beginPath();
-    context.arc(a.x, a.y, a.size, 0, Math.PI * 2);
-    context.fill();
-    context.shadowBlur = 0;
-  }
-}
-
-function animate(now) {
-  animationId = null;
-
-  if (!paused && !document.hidden) {
-    if (now - previousTime >= 33) {
-      const delta = Math.min((now - previousTime) / 16.67, 3);
-      draw(delta);
-      previousTime = now;
-    }
-
-    animationId = requestAnimationFrame(animate);
-  }
-}
-
-function syncAnimation() {
-  if (paused || document.hidden) {
-    if (animationId !== null) cancelAnimationFrame(animationId);
-    animationId = null;
-  } else if (animationId === null) {
-    previousTime = performance.now();
-    animationId = requestAnimationFrame(animate);
-  }
-}
-
-motionButton.addEventListener("click", syncAnimation);
-reducedMotion.addEventListener("change", syncAnimation);
 document.addEventListener("visibilitychange", syncAnimation);
 addEventListener("resize", resize);
 
-addEventListener("pointermove", event => {
-  if (event.pointerType === "mouse") {
-    pointer.x = event.clientX;
-    pointer.y = event.clientY;
-  }
-});
-
-document.documentElement.addEventListener("pointerleave", () => {
-  pointer.x = -1000;
-  pointer.y = -1000;
-});
-
 resize();
-syncAnimation();
+updateMotion();
 </script>
 </body>
 </html>
