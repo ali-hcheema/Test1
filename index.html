@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Arch Nemesis — exploring WezTerm architecture at Queen's University.">
-<title>Arch Nemesis</title>
+<title>Arch Nemesis | WezTerm Architecture</title>
 
 <style>
 :root {
@@ -12,7 +11,7 @@
   --text: #f3f6fb;
   --muted: #a1aec3;
   --cyan: #83ede4;
-  --line: rgba(255,255,255,.12);
+  --line: rgba(255,255,255,.13);
 }
 
 * { box-sizing: border-box; }
@@ -21,7 +20,7 @@ body {
   margin: 0;
   background: #080b12;
   color: var(--text);
-  font-family: "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -35,40 +34,36 @@ button:focus-visible, a:focus-visible {
   outline-offset: 5px;
 }
 
-.background {
+#network {
   position: fixed;
   inset: 0;
-  z-index: -1;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 0;
 }
 
-.background::before {
-  content: "";
-  position: absolute;
-  width: 65vw;
-  height: 65vw;
-  left: -25vw;
-  top: -25vw;
-  background: radial-gradient(circle, #24585c35, transparent 65%);
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, #174b5430, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, #51407830, transparent 55%);
 }
 
-.background::after {
-  content: "";
-  position: absolute;
-  width: 70vw;
-  height: 70vw;
-  right: -30vw;
-  bottom: -35vw;
-  background: radial-gradient(circle, #57488c35, transparent 65%);
+header, main {
+  position: relative;
+  z-index: 1;
 }
 
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28px 6vw;
   gap: 20px;
+  padding: 28px 6vw;
 }
 
 .brand {
@@ -77,7 +72,6 @@ header {
   gap: 11px;
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: -.2px;
 }
 
 .brand-mark {
@@ -86,7 +80,7 @@ header {
   border: 1px solid var(--cyan);
   border-radius: 7px;
   transform: rotate(-12deg);
-  box-shadow: inset 0 0 12px #83ede420;
+  box-shadow: 0 0 15px #83ede420;
 }
 
 .course {
@@ -100,64 +94,41 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 25px 22px 35px;
+  padding: 45px 22px 35px;
   text-align: center;
 }
 
-.scene {
+.emblem {
   position: relative;
-  width: 240px;
-  height: 190px;
-  margin-bottom: 25px;
+  display: grid;
+  place-items: center;
+  width: 85px;
+  height: 85px;
+  margin-bottom: 38px;
 }
 
-.scene::after {
+.emblem::before, .emblem::after {
   content: "";
   position: absolute;
-  inset: 30px;
-  background: radial-gradient(circle, #83ede417, transparent 70%);
-  filter: blur(15px);
-}
-
-.constellation {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  animation: orbit 35s linear infinite;
-}
-
-.constellation path {
-  fill: none;
-  stroke: #83ede4;
-  stroke-width: .65;
-  opacity: .35;
-}
-
-.constellation circle {
-  fill: #b2fff5;
-  filter: drop-shadow(0 0 4px #83ede4);
-}
-
-.core {
-  position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  border: 1px solid #83ede445;
+  border-radius: 24px;
 }
 
-.core span {
-  display: grid;
-  place-items: center;
-  width: 55px;
-  height: 55px;
-  border-radius: 17px;
-  background: linear-gradient(140deg, #ffffff15, #ffffff04);
-  border: 1px solid #ffffff26;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 35px #0005;
+.emblem::before { animation: rotate 24s linear infinite; }
+
+.emblem::after {
+  inset: 10px;
+  border-color: #aa93ff50;
+  animation: rotate 32s linear infinite reverse;
 }
 
-.core svg { width: 25px; height: 25px; }
+.emblem svg {
+  width: 28px;
+  height: 28px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px #83ede460);
+}
 
 .eyebrow {
   display: inline-flex;
@@ -166,11 +137,11 @@ main {
   padding: 7px 13px;
   border: 1px solid var(--line);
   border-radius: 30px;
+  background: #0c1420a0;
+  color: var(--muted);
   font-size: 10px;
   letter-spacing: .6px;
-  color: var(--muted);
-  background: #ffffff03;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .eyebrow i {
@@ -178,7 +149,7 @@ main {
   height: 5px;
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 10px #83ede480;
+  box-shadow: 0 0 10px var(--cyan);
 }
 
 h1 {
@@ -190,23 +161,21 @@ h1 {
 }
 
 h1 span {
-  background: linear-gradient(110deg, #d3fff7, #87cacd 60%, #b2a6e8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--cyan);
+  text-shadow: 0 0 35px #83ede425;
+  animation: glow 6s ease-in-out infinite;
 }
 
 .subtitle {
-  margin: 22px 0 0;
-  font-size: clamp(15px, 2vw, 19px);
-  font-weight: 400;
-  color: #c2cada;
+  margin: 24px 0 0;
+  font-size: clamp(15px, 2vw, 20px);
+  color: #c8d1df;
   letter-spacing: -.3px;
 }
 
 .description {
   max-width: 450px;
-  margin: 12px 0 36px;
+  margin: 13px 0 38px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.8;
@@ -215,17 +184,17 @@ h1 span {
 .dock {
   --mouse-x: 50%;
   --mouse-y: 50%;
-  display: flex;
-  gap: 5px;
   position: relative;
   isolation: isolate;
+  display: flex;
+  gap: 5px;
   padding: 8px;
   max-width: 100%;
   border: 1px solid #ffffff20;
   border-radius: 19px;
-  background: linear-gradient(145deg, #ffffff09, #ffffff03);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 15px 60px #0005, inset 0 1px 0 #ffffff0a;
+  background: #101724b8;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 15px 60px #0005, inset 0 1px 0 #ffffff08;
 }
 
 .dock::before {
@@ -237,9 +206,8 @@ h1 span {
   z-index: -1;
   opacity: 0;
   background: radial-gradient(
-    130px circle at var(--mouse-x) var(--mouse-y),
-    #83ede425,
-    transparent 75%
+    140px circle at var(--mouse-x) var(--mouse-y),
+    #83ede425, transparent 75%
   );
   transition: opacity .3s;
 }
@@ -264,13 +232,14 @@ h1 span {
 .dock button:hover {
   transform: translateY(-3px);
   background: #ffffff08;
-  border-color: #ffffff0c;
+  border-color: #83ede425;
   color: #fff;
+  box-shadow: 0 5px 20px #83ede408;
 }
 
 .dock button:hover svg { stroke: var(--cyan); }
 
-svg.icon {
+.icon {
   width: 17px;
   height: 17px;
   fill: none;
@@ -281,8 +250,8 @@ svg.icon {
 }
 
 footer {
-  margin-top: 45px;
-  color: #79869d;
+  margin-top: 48px;
+  color: #8492a9;
   font-size: 10px;
   line-height: 1.8;
 }
@@ -290,11 +259,11 @@ footer {
 .motion {
   display: block;
   margin: 12px auto 0;
+  padding: 5px;
   border: 0;
   background: transparent;
   color: #8996ab;
   font-size: 10px;
-  padding: 5px;
 }
 
 .motion:hover { color: var(--cyan); }
@@ -304,7 +273,7 @@ dialog {
   max-height: 85svh;
   overflow-y: auto;
   padding: 48px 36px 35px;
-  border: 1px solid #ffffff21;
+  border: 1px solid #83ede430;
   border-radius: 23px;
   background: #111620f5;
   color: var(--text);
@@ -328,8 +297,8 @@ dialog::backdrop {
   border: 0;
   border-radius: 50%;
   background: #ffffff06;
-  font-size: 23px;
   color: var(--muted);
+  font-size: 23px;
 }
 
 .close:hover { color: #fff; background: #ffffff12; }
@@ -394,7 +363,7 @@ h2 {
   font-size: 11px;
 }
 
-.member { flex: 1; }
+.member { flex: 1; min-width: 0; }
 .name { display: block; font-size: 14px; }
 
 .role {
@@ -424,9 +393,15 @@ h2 {
 .status, .file-link { font-size: 10px; white-space: nowrap; }
 .status { color: #8996ab; }
 
-body.paused .constellation { animation-play-state: paused; }
+body.paused *, body.paused *::before, body.paused *::after {
+  animation-play-state: paused !important;
+}
 
-@keyframes orbit { to { transform: rotate(360deg); } }
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+@keyframes glow {
+  50% { text-shadow: 0 0 45px #83ede440; }
+}
 
 @keyframes reveal {
   from { opacity: 0; transform: translateY(14px) scale(.98); }
@@ -436,16 +411,15 @@ body.paused .constellation { animation-play-state: paused; }
 @media (max-width: 600px) {
   header { padding: 22px; }
   .brand { font-size: 11px; }
-  .course { font-size: 9px; }
-  main { padding-top: 15px; }
-  .scene { width: 190px; height: 155px; margin-bottom: 18px; }
+  .course { font-size: 9px; text-align: right; }
+  main { padding-top: 35px; }
+  h1 { font-size: clamp(43px, 11vw, 66px); }
   .dock { display: grid; grid-template-columns: 1fr 1fr; width: 340px; }
   .dock button { padding: 15px 13px; }
   .description { font-size: 12px; }
   dialog { padding: 48px 22px 25px; }
   .resource { align-items: flex-start; flex-direction: column; }
   .name { font-size: 12px; }
-  h1 { font-size: clamp(44px, 11vw, 66px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -458,7 +432,8 @@ body.paused .constellation { animation-play-state: paused; }
 </head>
 
 <body>
-<div class="background" aria-hidden="true"></div>
+<canvas id="network" aria-hidden="true"></canvas>
+<div class="ambient" aria-hidden="true"></div>
 
 <header>
   <div class="brand">
@@ -469,45 +444,21 @@ body.paused .constellation { animation-play-state: paused; }
 </header>
 
 <main>
-  <div class="scene" aria-hidden="true">
-    <svg class="constellation" viewBox="0 0 240 190">
-      <path d="
-        M120 12 L202 48 L221 112 L167 174 L71 165 L20 102 L41 40 Z
-        M120 12 L167 174
-        M202 48 L71 165
-        M221 112 L41 40
-        M20 102 L202 48
-        M41 40 L167 174
-        M71 165 L120 12
-        M20 102 L221 112
-      "/>
-      <circle cx="120" cy="12" r="3"/>
-      <circle cx="202" cy="48" r="2.5"/>
-      <circle cx="221" cy="112" r="3"/>
-      <circle cx="167" cy="174" r="2.5"/>
-      <circle cx="71" cy="165" r="3"/>
-      <circle cx="20" cy="102" r="2.5"/>
-      <circle cx="41" cy="40" r="3"/>
+  <div class="emblem" aria-hidden="true">
+    <svg class="icon" viewBox="0 0 24 24">
+      <path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/>
     </svg>
-
-    <div class="core">
-      <span>
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/>
-        </svg>
-      </span>
-    </div>
   </div>
 
-  <div class="eyebrow"><i aria-hidden="true"></i>Software Architecture · 2026</div>
+  <div class="eyebrow">
+    <i aria-hidden="true"></i>Software Architecture · 2026
+  </div>
 
   <h1>Arch <span>Nemesis.</span></h1>
-
   <p class="subtitle">Exploring WezTerm architecture.</p>
-
   <p class="description">
-    Six perspectives. One system. Understanding how
-    software is structured, connected, and built to evolve.
+    Six perspectives. One system. Understanding how software
+    is structured, connected, and built to evolve.
   </p>
 
   <nav class="dock" aria-label="Project sections">
@@ -535,8 +486,7 @@ body.paused .constellation { animation-play-state: paused; }
 
     <button data-panel="presentation">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3 4h18v12H3ZM12 16v5M8 21h8"/>
-        <path d="m10 7 5 3-5 3Z"/>
+        <path d="M3 4h18v12H3ZM12 16v5M8 21h8M10 7l5 3-5 3Z"/>
       </svg>
       Presentation
     </button>
@@ -544,7 +494,9 @@ body.paused .constellation { animation-play-state: paused; }
 
   <footer>
     Arch Nemesis © 2026 · Kingston, Ontario
-    <button class="motion" id="motion" aria-pressed="false">Pause animation</button>
+    <button class="motion" id="motion" aria-pressed="false">
+      Pause animations
+    </button>
   </footer>
 </main>
 
@@ -606,10 +558,10 @@ const team = [
   { name: "Stephanie Douglas", initials: "SD", role: "Team Member", email: "23pfc1@queensu.ca" }
 ];
 
-// ADD YOUR DOCUMENT LINKS HERE.
-// Upload documents beside index.html, then enter their filenames.
+// ADD DOCUMENT LINKS HERE.
+// Upload files beside index.html and enter their filenames.
 // Example: url: "A1.pdf"
-// Full Google Drive and Google Slides links also work.
+// Full Google Drive or Slides links also work.
 
 const reports = [
   { title: "Assignment 01", description: "Conceptual Architecture", url: "" },
@@ -693,7 +645,7 @@ function renderResources(id, items) {
 renderResources("report-list", reports);
 renderResources("presentation-list", presentations);
 
-// OPEN AND CLOSE SECTIONS
+// POP-UP SECTIONS
 document.querySelectorAll("[data-panel]").forEach(button => {
   button.addEventListener("click", () => {
     document.getElementById(button.dataset.panel).showModal();
@@ -713,7 +665,7 @@ document.querySelectorAll("dialog").forEach(panel => {
   });
 });
 
-// LIGHT FOLLOWS THE MOUSE OVER THE NAVIGATION
+// NAVIGATION GLOW
 const dock = document.querySelector(".dock");
 
 dock.addEventListener("pointermove", event => {
@@ -723,21 +675,21 @@ dock.addEventListener("pointermove", event => {
   dock.style.setProperty("--mouse-y", (event.clientY - box.top) + "px");
 });
 
-// PAUSE / RESUME THE CONSTELLATION
-const motion = document.getElementById("motion");
+// ANIMATION CONTROLS
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const motionButton = document.getElementById("motion");
 let paused = reducedMotion.matches;
 
 function updateMotion() {
   document.body.classList.toggle("paused", paused);
-  motion.textContent = reducedMotion.matches
+  motionButton.textContent = reducedMotion.matches
     ? "Reduced motion enabled"
-    : paused ? "Resume animation" : "Pause animation";
-  motion.disabled = reducedMotion.matches;
-  motion.setAttribute("aria-pressed", String(paused));
+    : paused ? "Resume animations" : "Pause animations";
+  motionButton.disabled = reducedMotion.matches;
+  motionButton.setAttribute("aria-pressed", String(paused));
 }
 
-motion.addEventListener("click", () => {
+motionButton.addEventListener("click", () => {
   paused = !paused;
   updateMotion();
 });
@@ -748,6 +700,134 @@ reducedMotion.addEventListener("change", event => {
 });
 
 updateMotion();
+
+// MOVING NEON PARTICLES AND CONNECTING LINES
+const canvas = document.getElementById("network");
+const context = canvas.getContext("2d");
+let width = 0;
+let height = 0;
+let particles = [];
+let previousTime = 0;
+let animationId = null;
+const pointer = { x: -1000, y: -1000 };
+
+function resize() {
+  width = innerWidth;
+  height = innerHeight;
+  const scale = Math.min(devicePixelRatio || 1, 2);
+
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  context.setTransform(scale, 0, 0, scale, 0, 0);
+
+  const count = Math.min(80, Math.max(28, Math.floor(width * height / 17000)));
+
+  particles = Array.from({ length: count }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    vx: (Math.random() - .5) * .4,
+    vy: (Math.random() - .5) * .4,
+    size: Math.random() * 1.4 + .8
+  }));
+
+  draw(0);
+}
+
+function draw(delta) {
+  context.clearRect(0, 0, width, height);
+
+  for (const p of particles) {
+    p.x += p.vx * delta;
+    p.y += p.vy * delta;
+
+    if (p.x < 0) p.x = width;
+    if (p.x > width) p.x = 0;
+    if (p.y < 0) p.y = height;
+    if (p.y > height) p.y = 0;
+  }
+
+  for (let i = 0; i < particles.length; i++) {
+    const a = particles[i];
+
+    for (let j = i + 1; j < particles.length; j++) {
+      const b = particles[j];
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+
+      if (distance < 155) {
+        context.strokeStyle =
+          `rgba(131,237,228,${(1 - distance / 155) * .21})`;
+        context.lineWidth = .7;
+        context.beginPath();
+        context.moveTo(a.x, a.y);
+        context.lineTo(b.x, b.y);
+        context.stroke();
+      }
+    }
+
+    const mouseDistance = Math.hypot(a.x - pointer.x, a.y - pointer.y);
+
+    if (mouseDistance < 180) {
+      context.strokeStyle =
+        `rgba(174,151,255,${(1 - mouseDistance / 180) * .4})`;
+      context.beginPath();
+      context.moveTo(a.x, a.y);
+      context.lineTo(pointer.x, pointer.y);
+      context.stroke();
+    }
+
+    context.shadowBlur = 8;
+    context.shadowColor = "#83ede4";
+    context.fillStyle = "rgba(131,237,228,.75)";
+    context.beginPath();
+    context.arc(a.x, a.y, a.size, 0, Math.PI * 2);
+    context.fill();
+    context.shadowBlur = 0;
+  }
+}
+
+function animate(now) {
+  animationId = null;
+
+  if (!paused && !document.hidden) {
+    if (now - previousTime >= 33) {
+      const delta = Math.min((now - previousTime) / 16.67, 3);
+      draw(delta);
+      previousTime = now;
+    }
+
+    animationId = requestAnimationFrame(animate);
+  }
+}
+
+function syncAnimation() {
+  if (paused || document.hidden) {
+    if (animationId !== null) cancelAnimationFrame(animationId);
+    animationId = null;
+  } else if (animationId === null) {
+    previousTime = performance.now();
+    animationId = requestAnimationFrame(animate);
+  }
+}
+
+motionButton.addEventListener("click", syncAnimation);
+reducedMotion.addEventListener("change", syncAnimation);
+document.addEventListener("visibilitychange", syncAnimation);
+addEventListener("resize", resize);
+
+addEventListener("pointermove", event => {
+  if (event.pointerType === "mouse") {
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
+  }
+});
+
+document.documentElement.addEventListener("pointerleave", () => {
+  pointer.x = -1000;
+  pointer.y = -1000;
+});
+
+resize();
+syncAnimation();
 </script>
 </body>
 </html>
