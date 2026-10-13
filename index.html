@@ -1,710 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Arch Nemesis | Software Architecture</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arch Nemesis | Software Architecture</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
+<style>
+  :root {
+    color-scheme: dark;
+    --cyan: #62f5ef;
+    --purple: #a68aff;
+    --text: #edf6ff;
+    --muted: #9cacc5;
+    --border: rgba(98, 245, 239, .2);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: #060a13;
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+  }
+
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 5px;
+  }
+
+  #network {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 15% 20%, #123a4438, transparent 55%),
+      radial-gradient(ellipse at 85% 80%, #49316935, transparent 55%);
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 5vw;
+    border-bottom: 1px solid #ffffff0d;
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .brand { color: var(--cyan); }
+
+  .live {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--cyan);
+    animation: pulse 2s infinite;
+  }
+
+  .page {
+    min-height: calc(100svh - 68px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 22px 30px;
+    text-align: center;
+  }
+
+  .emblem {
+    width: 94px;
+    height: 94px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    margin-bottom: 32px;
+    color: var(--cyan);
+    font: 28px monospace;
+    text-shadow: 0 0 18px #62f5ef80;
+  }
+
+  .emblem::before, .emblem::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+  }
+
+  .emblem::before { animation: rotate 22s linear infinite; }
+
+  .emblem::after {
+    inset: 9px;
+    border-color: #a68aff50;
+    animation: rotate 30s linear infinite reverse;
+  }
+
+  .eyebrow {
+    color: var(--cyan);
+    font: 10px monospace;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0 0 20px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(43px, 9vw, 105px);
+    line-height: 1.05;
+    letter-spacing: -.055em;
+    font-weight: 800;
+  }
+
+  h1 span {
+    display: block;
+    color: var(--cyan);
+    text-shadow:
+      0 0 16px #62f5ef35,
+      0 0 60px #62f5ef20;
+    animation: glow 5s ease-in-out infinite;
+  }
+
+  .subtitle {
+    max-width: 510px;
+    margin: 24px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .terminal {
+    width: min(570px, 100%);
+    margin: 34px 0;
+    background: #0b1222dc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+    box-shadow: 0 15px 65px #0004;
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 16px;
+    background: #ffffff04;
+    border-bottom: 1px solid #ffffff0a;
+  }
+
+  .terminal-bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fa7474;
+  }
+
+  .terminal-bar i:nth-child(2) { background: #f2c76b; }
+  .terminal-bar i:nth-child(3) { background: #69dba1; }
+
+  .terminal-bar small {
+    margin-left: auto;
+    font: 10px monospace;
+    color: var(--muted);
+  }
+
+  .terminal-body {
+    padding: 20px;
+    min-height: 93px;
+    font: 12px/1.8 monospace;
+    overflow-wrap: anywhere;
+  }
+
+  .prompt { color: var(--purple); }
+  #typed { color: var(--cyan); }
+
+  .cursor {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    margin-left: 3px;
+    vertical-align: middle;
+    background: var(--cyan);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  .terminal-note {
+    display: block;
+    margin-top: 8px;
+    color: #73839e;
+    font-size: 10px;
+  }
+
+  .navigation {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    width: min(690px, 100%);
+  }
+
+  .navigation button {
+    padding: 16px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #0b1421c9;
+    font: 11px monospace;
+    letter-spacing: 1px;
+    transition: .25s ease;
+  }
+
+  .navigation button:hover {
+    transform: translateY(-4px);
+    color: var(--cyan);
+    background: #112833;
+    border-color: var(--cyan);
+    box-shadow: 0 0 24px #62f5ef20;
+  }
+
+  .navigation button span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--cyan);
+    font-size: 16px;
+  }
+
+  footer {
+    margin-top: 48px;
+    color: #7d8ca5;
+    font: 10px/1.8 monospace;
+    letter-spacing: 1px;
+  }
+
+  .motion-button {
+    margin-top: 12px;
+    padding: 5px 10px;
+    color: var(--muted);
+    font: 10px monospace;
+    background: transparent;
+    border: 1px solid #ffffff20;
+    border-radius: 4px;
+  }
+
+  dialog {
+    width: min(710px, calc(100% - 28px));
+    max-height: 85svh;
+    overflow: auto;
+    padding: 50px 36px 36px;
+    background: #0c1423;
+    color: var(--text);
+    border: 1px solid #62f5ef45;
+    border-radius: 14px;
+    box-shadow: 0 0 70px #62f5ef10, 0 30px 100px #0008;
+    text-align: left;
+  }
+
+  dialog[open] { animation: enter .25s ease-out; }
+
+  dialog::backdrop {
+    background: #020611c9;
+    backdrop-filter: blur(8px);
+  }
+
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 12px;
+    width: 35px;
+    height: 35px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 27px;
+  }
+
+  .close:hover { color: var(--cyan); }
+
+  h2 {
+    margin: 0 0 24px;
+    font-size: 29px;
+    letter-spacing: -1px;
+  }
+
+  .copy { color: var(--muted); font-size: 14px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+
+  .tag {
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: var(--cyan);
+    font: 10px monospace;
+  }
+
+  .team { margin: 0; padding: 0; list-style: none; }
+
+  .team li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 0;
+    border-bottom: 1px solid #ffffff12;
+  }
+
+  .team li:last-child { border-bottom: 0; }
+  .name { display: block; font-size: 15px; }
+
+  .role {
+    color: var(--muted);
+    font: 9px monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .email {
+    font: 11px monospace;
+    white-space: nowrap;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+  }
+
+  .resources { display: grid; gap: 12px; margin-top: 24px; }
+
+  .resource {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    background: #ffffff02;
+  }
+
+  .resource h3 { margin: 0 0 5px; font-size: 15px; }
+  .resource small { color: var(--muted); font-size: 11px; }
+
+  .status, .file-link {
+    font: 10px monospace;
+    white-space: nowrap;
+  }
+
+  .status { color: var(--muted); }
+
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes pulse { 50% { opacity: .4; } }
+  @keyframes glow { 50% { text-shadow: 0 0 24px #62f5ef65, 0 0 80px #62f5ef30; } }
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(15px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  body.paused *, body.paused *::before, body.paused *::after {
+    animation-play-state: paused !important;
+  }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 19px 20px; font-size: 9px; }
+    .page { padding-top: 40px; }
+    .eyebrow { letter-spacing: 2px; }
+    .navigation { grid-template-columns: repeat(2, 1fr); }
+    dialog { padding: 48px 23px 28px; }
+    .resource { align-items: flex-start; flex-direction: column; }
+    .subtitle { font-size: 13px; }
+    .terminal-body { font-size: 11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
     }
-
-    :root {
-      color-scheme: dark;
-      --text: #f3f1ed;
-      --muted: #b8bac6;
-      --line: rgba(255, 255, 255, 0.25);
-      --accent: #ade8e0;
-    }
-
-    body {
-      margin: 0;
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.7;
-      background:
-        radial-gradient(
-          ellipse at 18% 20%,
-          #354752,
-          transparent 55%
-        ),
-        radial-gradient(
-          ellipse at 85% 85%,
-          #43394b,
-          transparent 55%
-        ),
-        #141824;
-      background-attachment: fixed;
-    }
-
-    button {
-      font: inherit;
-      color: inherit;
-      cursor: pointer;
-    }
-
-    a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    button:focus-visible,
-    a:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 5px;
-    }
-
-    .page {
-      min-height: 100svh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 90px 24px 35px;
-    }
-
-    .topbar {
-      position: absolute;
-      top: 25px;
-      left: 30px;
-      right: 30px;
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      color: var(--muted);
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .symbol {
-      width: 88px;
-      height: 88px;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      position: relative;
-      margin-bottom: 55px;
-      font-size: 30px;
-    }
-
-    .symbol::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      width: 1px;
-      height: 55px;
-      background: var(--line);
-    }
-
-    .hero {
-      width: min(780px, 100%);
-      padding: 48px 20px;
-      text-align: center;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .eyebrow {
-      margin: 0 0 18px;
-      color: var(--accent);
-      font-size: 10px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0 0 22px;
-      font-size: clamp(35px, 7vw, 65px);
-      font-weight: 500;
-      letter-spacing: 7px;
-      line-height: 1.2;
-      text-transform: uppercase;
-    }
-
-    .description {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 2px;
-      line-height: 2.2;
-      text-transform: uppercase;
-    }
-
-    .navigation {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      padding-top: 54px;
-    }
-
-    .navigation::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 1px;
-      height: 54px;
-      background: var(--line);
-    }
-
-    .navigation button {
-      min-width: 135px;
-      padding: 15px 22px;
-      border: 1px solid var(--line);
-      background: transparent;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: background 0.2s;
-    }
-
-    .navigation button + button {
-      border-left: 0;
-    }
-
-    .navigation button:first-child {
-      border-radius: 5px 0 0 5px;
-    }
-
-    .navigation button:last-child {
-      border-radius: 0 5px 5px 0;
-    }
-
-    .navigation button:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent);
-    }
-
-    footer {
-      margin-top: 60px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    footer span {
-      display: block;
-      margin-top: 8px;
-    }
-
-    dialog {
-      width: min(720px, calc(100% - 30px));
-      max-height: 85svh;
-      overflow-y: auto;
-      padding: 55px 45px;
-      color: var(--text);
-      background: #1c202c;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 25px 100px rgba(0, 0, 0, 0.4);
-    }
-
-    dialog::backdrop {
-      background: rgba(9, 12, 22, 0.8);
-      backdrop-filter: blur(8px);
-    }
-
-    .close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      width: 38px;
-      height: 38px;
-      border: 0;
-      background: transparent;
-      font-size: 28px;
-    }
-
-    .close:hover {
-      color: var(--accent);
-    }
-
-    h2 {
-      width: fit-content;
-      margin: 0 0 28px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--line);
-      font-size: 25px;
-      font-weight: 500;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .copy {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 25px 0;
-    }
-
-    .tag {
-      padding: 5px 12px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      color: var(--accent);
-      font-size: 10px;
-    }
-
-    .team {
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-
-    .team li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 17px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .team li:last-child {
-      border-bottom: 0;
-    }
-
-    .name {
-      display: block;
-      font-size: 16px;
-    }
-
-    .role {
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .email {
-      padding: 6px 12px;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      font-size: 11px;
-      white-space: nowrap;
-    }
-
-    .resources {
-      display: grid;
-      gap: 14px;
-      margin-top: 25px;
-    }
-
-    .resource {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
-    }
-
-    .resource h3 {
-      margin: 0 0 5px;
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .resource small {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .status {
-      padding: 4px 9px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .file-link {
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 600px) {
-      .topbar {
-        left: 20px;
-        right: 20px;
-        font-size: 8px;
-        letter-spacing: 1px;
-      }
-
-      h1 {
-        letter-spacing: 4px;
-      }
-
-      .hero {
-        padding: 38px 8px;
-      }
-
-      .description {
-        font-size: 10px;
-        letter-spacing: 1.5px;
-      }
-
-      .navigation {
-        width: min(380px, 100%);
-        flex-wrap: wrap;
-      }
-
-      .navigation button {
-        width: 50%;
-        min-width: 0;
-        padding: 16px 10px;
-      }
-
-      .navigation button + button {
-        border-left: 1px solid var(--line);
-      }
-
-      .navigation button:nth-child(even) {
-        border-left: 0;
-      }
-
-      .navigation button:nth-child(n+3) {
-        border-top: 0;
-      }
-
-      .navigation button:first-child {
-        border-radius: 5px 0 0 0;
-      }
-
-      .navigation button:nth-child(2) {
-        border-radius: 0 5px 0 0;
-      }
-
-      .navigation button:nth-child(3) {
-        border-radius: 0 0 0 5px;
-      }
-
-      .navigation button:last-child {
-        border-radius: 0 0 5px 0;
-      }
-
-      dialog {
-        padding: 50px 24px 30px;
-      }
-
-      .resource {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .name {
-        font-size: 14px;
-      }
-
-      footer {
-        margin-top: 40px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        transition: none !important;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
-  <main class="page">
+<canvas id="network" aria-hidden="true"></canvas>
+<div class="ambient" aria-hidden="true"></div>
 
-    <div class="topbar">
-      <span>Queen's University</span>
-      <span>CISC 322 / 326 · 2026</span>
+<header class="topbar">
+  <span class="brand">&lt;ARCH_NEMESIS /&gt;</span>
+  <span class="live"><span class="dot" aria-hidden="true"></span>CISC 322 / 326</span>
+</header>
+
+<main class="page">
+  <div class="emblem" aria-hidden="true">&gt;_</div>
+  <p class="eyebrow">Queen's University · Software Architecture</p>
+
+  <h1>ARCH<span>NEMESIS</span></h1>
+
+  <p class="subtitle">
+    Six perspectives. One system.<br>
+    Exploring the architecture behind WezTerm.
+  </p>
+
+  <div class="terminal" aria-label="Animated project terminal">
+    <div class="terminal-bar" aria-hidden="true">
+      <i></i><i></i><i></i>
+      <small>arch-nemesis — wezterm</small>
     </div>
-
-    <div class="symbol" aria-hidden="true">◇</div>
-
-    <header class="hero">
-      <p class="eyebrow">Software Architecture</p>
-      <h1>Arch Nemesis</h1>
-      <p class="description">
-        Six perspectives. One system.<br>
-        Exploring the architecture of WezTerm.
-      </p>
-    </header>
-
-    <nav class="navigation" aria-label="Project sections">
-      <button data-panel="project">The Project</button>
-      <button data-panel="team">Our Team</button>
-      <button data-panel="reports">Reports</button>
-      <button data-panel="presentation">Presentation</button>
-    </nav>
-
-    <footer>
-      Arch Nemesis © 2026
-      <span>Queen's University · Kingston, Ontario</span>
-    </footer>
-
-  </main>
-
-  <!-- PROJECT -->
-
-  <dialog id="project" aria-labelledby="project-title">
-    <button class="close" aria-label="Close">×</button>
-
-    <p class="eyebrow">01 / The Project</p>
-    <h2 id="project-title">Inside WezTerm</h2>
-
-    <p class="copy">
-      We are Arch Nemesis, a software architecture project group
-      at Queen's University. Our project examines WezTerm,
-      a terminal emulator and multiplexer.
-    </p>
-
-    <p class="copy">
-      Through conceptual analysis, source code investigation,
-      and an enhancement proposal, we explore how the system
-      is organized and how its components work together.
-    </p>
-
-    <div class="tags">
-      <span class="tag">Conceptual Architecture</span>
-      <span class="tag">Concrete Architecture</span>
-      <span class="tag">Enhancement</span>
+    <div class="terminal-body">
+      <span class="prompt">~/arch-nemesis $ </span>
+      <span id="typed"></span><span class="cursor" aria-hidden="true"></span>
+      <span class="terminal-note">Conceptual analysis / Source exploration / System evolution</span>
     </div>
+  </div>
 
-    <a
-      href="https://wezterm.org/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Explore WezTerm ↗
-    </a>
-  </dialog>
+  <nav class="navigation" aria-label="Project sections">
+    <button data-panel="project"><span aria-hidden="true">&lt;/&gt;</span>The Project</button>
+    <button data-panel="team"><span aria-hidden="true">{ }</span>Our Team</button>
+    <button data-panel="reports"><span aria-hidden="true">[ ]</span>Reports</button>
+    <button data-panel="presentation"><span aria-hidden="true">&gt;_</span>Presentation</button>
+  </nav>
 
-  <!-- TEAM -->
+  <footer>
+    ARCH NEMESIS © 2026<br>
+    Queen's University · Kingston, Ontario<br>
+    <button class="motion-button" id="motion" aria-pressed="false">Pause animations</button>
+  </footer>
+</main>
 
-  <dialog id="team" aria-labelledby="team-title">
-    <button class="close" aria-label="Close">×</button>
+<dialog id="project" aria-labelledby="project-title">
+  <button class="close" aria-label="Close">×</button>
+  <p class="eyebrow">01 / The Project</p>
+  <h2 id="project-title">Inside WezTerm</h2>
+  <p class="copy">
+    We are Arch Nemesis, a software architecture project group at
+    Queen's University. Our project examines WezTerm, a terminal
+    emulator and multiplexer.
+  </p>
+  <p class="copy">
+    Through conceptual analysis, source code investigation, and an
+    enhancement proposal, we explore how the system is organized
+    and how its components work together.
+  </p>
+  <div class="tags">
+    <span class="tag">Conceptual Architecture</span>
+    <span class="tag">Concrete Architecture</span>
+    <span class="tag">Enhancement</span>
+  </div>
+  <a href="https://wezterm.org/" target="_blank" rel="noopener noreferrer">
+    Explore WezTerm ↗
+  </a>
+</dialog>
 
-    <p class="eyebrow">02 / The People</p>
-    <h2 id="team-title">Our Team</h2>
+<dialog id="team" aria-labelledby="team-title">
+  <button class="close" aria-label="Close">×</button>
+  <p class="eyebrow">02 / The People</p>
+  <h2 id="team-title">Our Team</h2>
 
-    <ul class="team">
-      <li>
-        <div>
-          <span class="name">Ali Haider Cheema</span>
-          <span class="role">Team Lead</span>
-        </div>
-        <a class="email" href="mailto:20ahc1@queensu.ca"
-           aria-label="Email Ali Haider Cheema">Email ↗</a>
-      </li>
+  <ul class="team">
+    <li>
+      <div><span class="name">Ali Haider Cheema</span><span class="role">Team Lead</span></div>
+      <a class="email" href="mailto:20ahc1@queensu.ca" aria-label="Email Ali Haider Cheema">Email ↗</a>
+    </li>
+    <li>
+      <div><span class="name">Paige Brossard</span><span class="role">Presenter</span></div>
+      <a class="email" href="mailto:paige.brossard@queensu.ca" aria-label="Email Paige Brossard">Email ↗</a>
+    </li>
+    <li>
+      <div><span class="name">Sandy Khodak</span><span class="role">Presenter</span></div>
+      <a class="email" href="mailto:23nr52@queensu.ca" aria-label="Email Sandy Khodak">Email ↗</a>
+    </li>
+    <li>
+      <div><span class="name">Kezia Sorensen</span><span class="role">Team Member</span></div>
+      <a class="email" href="mailto:23hjl2@queensu.ca" aria-label="Email Kezia Sorensen">Email ↗</a>
+    </li>
+    <li>
+      <div><span class="name">Sienna Bragg</span><span class="role">Team Member</span></div>
+      <a class="email" href="mailto:23dlc4@queensu.ca" aria-label="Email Sienna Bragg">Email ↗</a>
+    </li>
+    <li>
+      <div><span class="name">Stephanie Douglas</span><span class="role">Team Member</span></div>
+      <a class="email" href="mailto:23pfc1@queensu.ca" aria-label="Email Stephanie Douglas">Email ↗</a>
+    </li>
+  </ul>
+</dialog>
 
-      <li>
-        <div>
-          <span class="name">Paige Brossard</span>
-          <span class="role">Presenter</span>
-        </div>
-        <a class="email" href="mailto:paige.brossard@queensu.ca"
-           aria-label="Email Paige Brossard">Email ↗</a>
-      </li>
+<dialog id="reports" aria-labelledby="reports-title">
+  <button class="close" aria-label="Close">×</button>
+  <p class="eyebrow">03 / Documentation</p>
+  <h2 id="reports-title">Project Reports</h2>
+  <p class="copy">Our analysis of WezTerm's architecture, implementation, and proposed evolution.</p>
+  <div class="resources" id="report-list"></div>
+</dialog>
 
-      <li>
-        <div>
-          <span class="name">Sandy Khodak</span>
-          <span class="role">Presenter</span>
-        </div>
-        <a class="email" href="mailto:23nr52@queensu.ca"
-           aria-label="Email Sandy Khodak">Email ↗</a>
-      </li>
+<dialog id="presentation" aria-labelledby="presentation-title">
+  <button class="close" aria-label="Close">×</button>
+  <p class="eyebrow">04 / Presentation</p>
+  <h2 id="presentation-title">Presentations</h2>
+  <p class="copy">Slides and speaking notes for our project presentations.</p>
+  <div class="resources" id="presentation-list"></div>
+</dialog>
 
-      <li>
-        <div>
-          <span class="name">Kezia Sorensen</span>
-          <span class="role">Team Member</span>
-        </div>
-        <a class="email" href="mailto:23hjl2@queensu.ca"
-           aria-label="Email Kezia Sorensen">Email ↗</a>
-      </li>
+<script>
+  // ADD YOUR DOCUMENT LINKS HERE.
+  // Upload documents beside index.html, then enter the filename.
+  // Example: url: "A1.pdf"
+  // Full Google Drive or Slides links also work.
 
-      <li>
-        <div>
-          <span class="name">Sienna Bragg</span>
-          <span class="role">Team Member</span>
-        </div>
-        <a class="email" href="mailto:23dlc4@queensu.ca"
-           aria-label="Email Sienna Bragg">Email ↗</a>
-      </li>
+  const reports = [
+    { title: "Assignment 01", description: "Conceptual Architecture", url: "" },
+    { title: "Assignment 02", description: "Concrete Architecture", url: "" },
+    { title: "Assignment 03", description: "Enhancement Proposal", url: "" }
+  ];
 
-      <li>
-        <div>
-          <span class="name">Stephanie Douglas</span>
-          <span class="role">Team Member</span>
-        </div>
-        <a class="email" href="mailto:23pfc1@queensu.ca"
-           aria-label="Email Stephanie Douglas">Email ↗</a>
-      </li>
-    </ul>
-  </dialog>
+  const presentations = [
+    { title: "Slides", description: "Presentation deck", url: "" },
+    { title: "Script", description: "Speaking notes", url: "" }
+  ];
 
-  <!-- REPORTS -->
+  function renderResources(id, items) {
+    const container = document.getElementById(id);
 
-  <dialog id="reports" aria-labelledby="reports-title">
-    <button class="close" aria-label="Close">×</button>
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "resource";
 
-    <p class="eyebrow">03 / Documentation</p>
-    <h2 id="reports-title">Project Reports</h2>
+      const text = document.createElement("div");
+      const title = document.createElement("h3");
+      const description = document.createElement("small");
+      title.textContent = item.title;
+      description.textContent = item.description;
+      text.append(title, description);
+      row.append(text);
 
-    <p class="copy">
-      Our analysis, from the system's conceptual structure
-      to its implementation and proposed evolution.
-    </p>
-
-    <div class="resources" id="report-list"></div>
-  </dialog>
-
-  <!-- PRESENTATIONS -->
-
-  <dialog id="presentation" aria-labelledby="presentation-title">
-    <button class="close" aria-label="Close">×</button>
-
-    <p class="eyebrow">04 / Presentation</p>
-    <h2 id="presentation-title">Presentations</h2>
-
-    <p class="copy">
-      Slides and speaking notes for our project presentations.
-    </p>
-
-    <div class="resources" id="presentation-list"></div>
-  </dialog>
-
-  <script>
-    /*
-      ADD YOUR DOCUMENT LINKS BELOW.
-
-      Upload your files into the same folder as index.html.
-      Then enter their exact filenames in the url fields.
-
-      Example:
-      url: "A1.pdf"
-
-      Full Google Drive or Google Slides links also work.
-      Empty links display "Coming soon".
-    */
-
-    const reports = [
-      {
-        title: "Assignment 01",
-        description: "Conceptual Architecture",
-        url: ""
-      },
-      {
-        title: "Assignment 02",
-        description: "Concrete Architecture",
-        url: ""
-      },
-      {
-        title: "Assignment 03",
-        description: "Enhancement Proposal",
-        url: ""
+      if (item.url) {
+        const link = document.createElement("a");
+        link.className = "file-link";
+        link.href = item.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "View file ↗";
+        link.setAttribute("aria-label", "View " + item.title);
+        row.append(link);
+      } else {
+        const status = document.createElement("span");
+        status.className = "status";
+        status.textContent = "Coming soon";
+        row.append(status);
       }
-    ];
 
-    const presentations = [
-      {
-        title: "Slides",
-        description: "Presentation deck",
-        url: ""
-      },
-      {
-        title: "Script",
-        description: "Speaking notes",
-        url: ""
+      container.append(row);
+    });
+  }
+
+  renderResources("report-list", reports);
+  renderResources("presentation-list", presentations);
+
+  // POP-UP SECTIONS
+
+  document.querySelectorAll("[data-panel]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.getElementById(button.dataset.panel).showModal();
+    });
+  });
+
+  document.querySelectorAll("dialog").forEach(panel => {
+    panel.querySelector(".close").addEventListener("click", () => panel.close());
+
+    panel.addEventListener("click", event => {
+      const box = panel.getBoundingClientRect();
+      const outside =
+        event.clientX < box.left || event.clientX > box.right ||
+        event.clientY < box.top || event.clientY > box.bottom;
+
+      if (event.target === panel && outside) panel.close();
+    });
+  });
+
+  // ANIMATION CONTROLS
+
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  let paused = reducedMotion.matches;
+  const motionButton = document.getElementById("motion");
+
+  function updateMotionButton() {
+    document.body.classList.toggle("paused", paused);
+    motionButton.textContent = paused ? "Resume animations" : "Pause animations";
+    motionButton.setAttribute("aria-pressed", String(paused));
+  }
+
+  motionButton.addEventListener("click", () => {
+    paused = !paused;
+    updateMotionButton();
+  });
+
+  reducedMotion.addEventListener("change", event => {
+    paused = event.matches;
+    updateMotionButton();
+  });
+
+  updateMotionButton();
+
+  // TYPING TERMINAL
+
+  const messages = [
+    "Exploring WezTerm architecture...",
+    "Mapping components and dependencies...",
+    "Tracing input to terminal output...",
+    "Understanding one system together."
+  ];
+
+  const typed = document.getElementById("typed");
+  let messageIndex = 0;
+  let letterIndex = 0;
+  let deleting = false;
+  let nextTypingTime = 0;
+
+  if (reducedMotion.matches) {
+    typed.textContent = messages[0];
+    letterIndex = messages[0].length;
+  }
+
+  function typeStep(now) {
+    if (now < nextTypingTime) return;
+    const message = messages[messageIndex];
+
+    if (!deleting) {
+      letterIndex = Math.min(letterIndex + 1, message.length);
+      typed.textContent = message.slice(0, letterIndex);
+      nextTypingTime = now + 65;
+
+      if (letterIndex === message.length) {
+        deleting = true;
+        nextTypingTime = now + 2200;
       }
-    ];
+    } else {
+      letterIndex = Math.max(0, letterIndex - 1);
+      typed.textContent = message.slice(0, letterIndex);
+      nextTypingTime = now + 30;
 
-    function renderResources(containerId, items) {
-      const container = document.getElementById(containerId);
+      if (letterIndex === 0) {
+        deleting = false;
+        messageIndex = (messageIndex + 1) % messages.length;
+        nextTypingTime = now + 350;
+      }
+    }
+  }
 
-      items.forEach(function (item) {
-        const row = document.createElement("div");
-        row.className = "resource";
+  // MOVING NETWORK BACKGROUND
 
-        const text = document.createElement("div");
+  const canvas = document.getElementById("network");
+  const context = canvas.getContext("2d");
+  let width = 0;
+  let height = 0;
+  let particles = [];
+  let lastFrameTime = 0;
+  let lastDrawTime = 0;
+  const pointer = { x: -1000, y: -1000 };
 
-        const heading = document.createElement("h3");
-        heading.textContent = item.title;
+  function resize() {
+    width = innerWidth;
+    height = innerHeight;
+    const scale = Math.min(devicePixelRatio || 1, 2);
 
-        const detail = document.createElement("small");
-        detail.textContent = item.description;
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    context.setTransform(scale, 0, 0, scale, 0, 0);
 
-        text.append(heading, detail);
-        row.append(text);
+    const count = Math.min(72, Math.max(25, Math.floor(width * height / 19000)));
 
-        if (item.url) {
-          const link = document.createElement("a");
-          link.className = "file-link";
-          link.href = item.url;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = "View file ↗";
-          link.setAttribute("aria-label", "View " + item.title);
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - .5) * .35,
+      vy: (Math.random() - .5) * .35,
+      size: Math.random() * 1.4 + .7
+    }));
 
-          row.append(link);
-        } else {
-          const status = document.createElement("span");
-          status.className = "status";
-          status.textContent = "Coming soon";
+    drawNetwork(0);
+  }
 
-          row.append(status);
-        }
+  function drawNetwork(delta) {
+    context.clearRect(0, 0, width, height);
 
-        container.append(row);
-      });
+    for (const particle of particles) {
+      particle.x += particle.vx * delta;
+      particle.y += particle.vy * delta;
+
+      if (particle.x < 0) particle.x = width;
+      if (particle.x > width) particle.x = 0;
+      if (particle.y < 0) particle.y = height;
+      if (particle.y > height) particle.y = 0;
     }
 
-    renderResources("report-list", reports);
-    renderResources("presentation-list", presentations);
+    for (let i = 0; i < particles.length; i++) {
+      const a = particles[i];
 
-    document.querySelectorAll("[data-panel]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        const panel = document.getElementById(button.dataset.panel);
-        panel.showModal();
-      });
-    });
+      for (let j = i + 1; j < particles.length; j++) {
+        const b = particles[j];
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
 
-    document.querySelectorAll("dialog").forEach(function (panel) {
-      panel.querySelector(".close").addEventListener("click", function () {
-        panel.close();
-      });
-
-      panel.addEventListener("click", function (event) {
-        const box = panel.getBoundingClientRect();
-
-        const outside =
-          event.clientX < box.left ||
-          event.clientX > box.right ||
-          event.clientY < box.top ||
-          event.clientY > box.bottom;
-
-        if (event.target === panel && outside) {
-          panel.close();
+        if (distance < 145) {
+          context.strokeStyle = `rgba(98,245,239,${(1 - distance / 145) * .16})`;
+          context.lineWidth = .6;
+          context.beginPath();
+          context.moveTo(a.x, a.y);
+          context.lineTo(b.x, b.y);
+          context.stroke();
         }
-      });
-    });
-  </script>
+      }
+
+      const pointerDistance = Math.hypot(a.x - pointer.x, a.y - pointer.y);
+
+      if (pointerDistance < 170) {
+        context.strokeStyle = `rgba(166,138,255,${(1 - pointerDistance / 170) * .4})`;
+        context.beginPath();
+        context.moveTo(a.x, a.y);
+        context.lineTo(pointer.x, pointer.y);
+        context.stroke();
+      }
+
+      context.fillStyle = "rgba(98,245,239,.65)";
+      context.beginPath();
+      context.arc(a.x, a.y, a.size, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+
+  addEventListener("resize", resize);
+
+  addEventListener("pointermove", event => {
+    if (event.pointerType === "mouse") {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+    }
+  });
+
+  document.documentElement.addEventListener("pointerleave", () => {
+    pointer.x = -1000;
+    pointer.y = -1000;
+  });
+
+  // Limit canvas rendering to roughly 30 frames per second.
+  function animate(now) {
+    const delta = Math.min((now - lastFrameTime) / 16.67, 2);
+    lastFrameTime = now;
+
+    if (!paused && !document.hidden) {
+      typeStep(now);
+
+      if (now - lastDrawTime >= 33) {
+        drawNetwork(Math.min((now - lastDrawTime) / 16.67, 3));
+        lastDrawTime = now;
+      }
+    } else {
+      lastDrawTime = now;
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  resize();
+  requestAnimationFrame(animate);
+</script>
 </body>
 </html>
