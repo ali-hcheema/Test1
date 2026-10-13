@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arch Nemesis | Software Architecture</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      color-scheme: dark;
+      --text: #f3f1ed;
+      --muted: #b8bac6;
+      --line: rgba(255, 255, 255, 0.25);
+      --accent: #ade8e0;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.7;
+      background:
+        radial-gradient(
+          ellipse at 18% 20%,
+          #354752,
+          transparent 55%
+        ),
+        radial-gradient(
+          ellipse at 85% 85%,
+          #43394b,
+          transparent 55%
+        ),
+        #141824;
+      background-attachment: fixed;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 5px;
+    }
+
+    .page {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 24px 35px;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 25px;
+      left: 30px;
+      right: 30px;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .symbol {
+      width: 88px;
+      height: 88px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      position: relative;
+      margin-bottom: 55px;
+      font-size: 30px;
+    }
+
+    .symbol::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      width: 1px;
+      height: 55px;
+      background: var(--line);
+    }
+
+    .hero {
+      width: min(780px, 100%);
+      padding: 48px 20px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 22px;
+      font-size: clamp(35px, 7vw, 65px);
+      font-weight: 500;
+      letter-spacing: 7px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 2px;
+      line-height: 2.2;
+      text-transform: uppercase;
+    }
+
+    .navigation {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding-top: 54px;
+    }
+
+    .navigation::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 54px;
+      background: var(--line);
+    }
+
+    .navigation button {
+      min-width: 135px;
+      padding: 15px 22px;
+      border: 1px solid var(--line);
+      background: transparent;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+
+    .navigation button + button {
+      border-left: 0;
+    }
+
+    .navigation button:first-child {
+      border-radius: 5px 0 0 5px;
+    }
+
+    .navigation button:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+
+    .navigation button:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    footer span {
+      display: block;
+      margin-top: 8px;
+    }
+
+    dialog {
+      width: min(720px, calc(100% - 30px));
+      max-height: 85svh;
+      overflow-y: auto;
+      padding: 55px 45px;
+      color: var(--text);
+      background: #1c202c;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 25px 100px rgba(0, 0, 0, 0.4);
+    }
+
+    dialog::backdrop {
+      background: rgba(9, 12, 22, 0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    .close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      width: 38px;
+      height: 38px;
+      border: 0;
+      background: transparent;
+      font-size: 28px;
+    }
+
+    .close:hover {
+      color: var(--accent);
+    }
+
+    h2 {
+      width: fit-content;
+      margin: 0 0 28px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 25px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .copy {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 25px 0;
+    }
+
+    .tag {
+      padding: 5px 12px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      color: var(--accent);
+      font-size: 10px;
+    }
+
+    .team {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .team li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .team li:last-child {
+      border-bottom: 0;
+    }
+
+    .name {
+      display: block;
+      font-size: 16px;
+    }
+
+    .role {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .email {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .resources {
+      display: grid;
+      gap: 14px;
+      margin-top: 25px;
+    }
+
+    .resource {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+    }
+
+    .resource h3 {
+      margin: 0 0 5px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .resource small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .status {
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .file-link {
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        left: 20px;
+        right: 20px;
+        font-size: 8px;
+        letter-spacing: 1px;
+      }
+
+      h1 {
+        letter-spacing: 4px;
+      }
+
+      .hero {
+        padding: 38px 8px;
+      }
+
+      .description {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+      }
+
+      .navigation {
+        width: min(380px, 100%);
+        flex-wrap: wrap;
+      }
+
+      .navigation button {
+        width: 50%;
+        min-width: 0;
+        padding: 16px 10px;
+      }
+
+      .navigation button + button {
+        border-left: 1px solid var(--line);
+      }
+
+      .navigation button:nth-child(even) {
+        border-left: 0;
+      }
+
+      .navigation button:nth-child(n+3) {
+        border-top: 0;
+      }
+
+      .navigation button:first-child {
+        border-radius: 5px 0 0 0;
+      }
+
+      .navigation button:nth-child(2) {
+        border-radius: 0 5px 0 0;
+      }
+
+      .navigation button:nth-child(3) {
+        border-radius: 0 0 0 5px;
+      }
+
+      .navigation button:last-child {
+        border-radius: 0 0 5px 0;
+      }
+
+      dialog {
+        padding: 50px 24px 30px;
+      }
+
+      .resource {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .name {
+        font-size: 14px;
+      }
+
+      footer {
+        margin-top: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <div class="topbar">
+      <span>Queen's University</span>
+      <span>CISC 322 / 326 · 2026</span>
+    </div>
+
+    <div class="symbol" aria-hidden="true">◇</div>
+
+    <header class="hero">
+      <p class="eyebrow">Software Architecture</p>
+      <h1>Arch Nemesis</h1>
+      <p class="description">
+        Six perspectives. One system.<br>
+        Exploring the architecture of WezTerm.
+      </p>
+    </header>
+
+    <nav class="navigation" aria-label="Project sections">
+      <button data-panel="project">The Project</button>
+      <button data-panel="team">Our Team</button>
+      <button data-panel="reports">Reports</button>
+      <button data-panel="presentation">Presentation</button>
+    </nav>
+
+    <footer>
+      Arch Nemesis © 2026
+      <span>Queen's University · Kingston, Ontario</span>
+    </footer>
+
+  </main>
+
+  <!-- PROJECT -->
+
+  <dialog id="project" aria-labelledby="project-title">
+    <button class="close" aria-label="Close">×</button>
+
+    <p class="eyebrow">01 / The Project</p>
+    <h2 id="project-title">Inside WezTerm</h2>
+
+    <p class="copy">
+      We are Arch Nemesis, a software architecture project group
+      at Queen's University. Our project examines WezTerm,
+      a terminal emulator and multiplexer.
+    </p>
+
+    <p class="copy">
+      Through conceptual analysis, source code investigation,
+      and an enhancement proposal, we explore how the system
+      is organized and how its components work together.
+    </p>
+
+    <div class="tags">
+      <span class="tag">Conceptual Architecture</span>
+      <span class="tag">Concrete Architecture</span>
+      <span class="tag">Enhancement</span>
+    </div>
+
+    <a
+      href="https://wezterm.org/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Explore WezTerm ↗
+    </a>
+  </dialog>
+
+  <!-- TEAM -->
+
+  <dialog id="team" aria-labelledby="team-title">
+    <button class="close" aria-label="Close">×</button>
+
+    <p class="eyebrow">02 / The People</p>
+    <h2 id="team-title">Our Team</h2>
+
+    <ul class="team">
+      <li>
+        <div>
+          <span class="name">Ali Haider Cheema</span>
+          <span class="role">Team Lead</span>
+        </div>
+        <a class="email" href="mailto:20ahc1@queensu.ca"
+           aria-label="Email Ali Haider Cheema">Email ↗</a>
+      </li>
+
+      <li>
+        <div>
+          <span class="name">Paige Brossard</span>
+          <span class="role">Presenter</span>
+        </div>
+        <a class="email" href="mailto:paige.brossard@queensu.ca"
+           aria-label="Email Paige Brossard">Email ↗</a>
+      </li>
+
+      <li>
+        <div>
+          <span class="name">Sandy Khodak</span>
+          <span class="role">Presenter</span>
+        </div>
+        <a class="email" href="mailto:23nr52@queensu.ca"
+           aria-label="Email Sandy Khodak">Email ↗</a>
+      </li>
+
+      <li>
+        <div>
+          <span class="name">Kezia Sorensen</span>
+          <span class="role">Team Member</span>
+        </div>
+        <a class="email" href="mailto:23hjl2@queensu.ca"
+           aria-label="Email Kezia Sorensen">Email ↗</a>
+      </li>
+
+      <li>
+        <div>
+          <span class="name">Sienna Bragg</span>
+          <span class="role">Team Member</span>
+        </div>
+        <a class="email" href="mailto:23dlc4@queensu.ca"
+           aria-label="Email Sienna Bragg">Email ↗</a>
+      </li>
+
+      <li>
+        <div>
+          <span class="name">Stephanie Douglas</span>
+          <span class="role">Team Member</span>
+        </div>
+        <a class="email" href="mailto:23pfc1@queensu.ca"
+           aria-label="Email Stephanie Douglas">Email ↗</a>
+      </li>
+    </ul>
+  </dialog>
+
+  <!-- REPORTS -->
+
+  <dialog id="reports" aria-labelledby="reports-title">
+    <button class="close" aria-label="Close">×</button>
+
+    <p class="eyebrow">03 / Documentation</p>
+    <h2 id="reports-title">Project Reports</h2>
+
+    <p class="copy">
+      Our analysis, from the system's conceptual structure
+      to its implementation and proposed evolution.
+    </p>
+
+    <div class="resources" id="report-list"></div>
+  </dialog>
+
+  <!-- PRESENTATIONS -->
+
+  <dialog id="presentation" aria-labelledby="presentation-title">
+    <button class="close" aria-label="Close">×</button>
+
+    <p class="eyebrow">04 / Presentation</p>
+    <h2 id="presentation-title">Presentations</h2>
+
+    <p class="copy">
+      Slides and speaking notes for our project presentations.
+    </p>
+
+    <div class="resources" id="presentation-list"></div>
+  </dialog>
+
+  <script>
+    /*
+      ADD YOUR DOCUMENT LINKS BELOW.
+
+      Upload your files into the same folder as index.html.
+      Then enter their exact filenames in the url fields.
+
+      Example:
+      url: "A1.pdf"
+
+      Full Google Drive or Google Slides links also work.
+      Empty links display "Coming soon".
+    */
+
+    const reports = [
+      {
+        title: "Assignment 01",
+        description: "Conceptual Architecture",
+        url: ""
+      },
+      {
+        title: "Assignment 02",
+        description: "Concrete Architecture",
+        url: ""
+      },
+      {
+        title: "Assignment 03",
+        description: "Enhancement Proposal",
+        url: ""
+      }
+    ];
+
+    const presentations = [
+      {
+        title: "Slides",
+        description: "Presentation deck",
+        url: ""
+      },
+      {
+        title: "Script",
+        description: "Speaking notes",
+        url: ""
+      }
+    ];
+
+    function renderResources(containerId, items) {
+      const container = document.getElementById(containerId);
+
+      items.forEach(function (item) {
+        const row = document.createElement("div");
+        row.className = "resource";
+
+        const text = document.createElement("div");
+
+        const heading = document.createElement("h3");
+        heading.textContent = item.title;
+
+        const detail = document.createElement("small");
+        detail.textContent = item.description;
+
+        text.append(heading, detail);
+        row.append(text);
+
+        if (item.url) {
+          const link = document.createElement("a");
+          link.className = "file-link";
+          link.href = item.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "View file ↗";
+          link.setAttribute("aria-label", "View " + item.title);
+
+          row.append(link);
+        } else {
+          const status = document.createElement("span");
+          status.className = "status";
+          status.textContent = "Coming soon";
+
+          row.append(status);
+        }
+
+        container.append(row);
+      });
+    }
+
+    renderResources("report-list", reports);
+    renderResources("presentation-list", presentations);
+
+    document.querySelectorAll("[data-panel]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const panel = document.getElementById(button.dataset.panel);
+        panel.showModal();
+      });
+    });
+
+    document.querySelectorAll("dialog").forEach(function (panel) {
+      panel.querySelector(".close").addEventListener("click", function () {
+        panel.close();
+      });
+
+      panel.addEventListener("click", function (event) {
+        const box = panel.getBoundingClientRect();
+
+        const outside =
+          event.clientX < box.left ||
+          event.clientX > box.right ||
+          event.clientY < box.top ||
+          event.clientY > box.bottom;
+
+        if (event.target === panel && outside) {
+          panel.close();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
